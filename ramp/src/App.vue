@@ -1,23 +1,18 @@
 <template>
   <div id="app">
-    <Legend />
+    <Legend v-bind:entries="$store.state.entries" />
   </div>
 </template>
 
 <script>
-import Legend from './components/Legend.vue';
-import Vue from 'vue'
-import VueMaterial from 'vue-material'
-import 'vue-material/dist/vue-material.min.css'
-
-Vue.use(VueMaterial);
+import Legend from "./components/Legend";
 
 export default {
-  name: 'app',
+  name: "app",
   components: {
     Legend
   }
-}
+};
 </script>
 
 <style>
