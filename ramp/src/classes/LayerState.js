@@ -3,6 +3,7 @@ export class LayerState {
     this.name = name;
     this.parent = parent;
     this.children = [];
+    this.symbologyStack = null;
 
     // find and store root
     let curEntry = this;
