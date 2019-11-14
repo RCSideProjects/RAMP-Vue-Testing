@@ -2,22 +2,16 @@
   <div class="rvDropdown">
     <div class="rvDropdownTitle noselect" v-on:click="click">
       <!-- icon -->
-      <md-icon id="icon" :class="{ 'rotate-180': element.expanded }">expand_more</md-icon>
+      <md-button id="icon" class="md-icon-button md-primary md-flat" v-if="element.expanded">
+        <md-icon class="md-icon-small" style="width: 20px; height: 20px;">clear</md-icon>
+      </md-button>
+      <SymbologyStackIcon :stack="element.symbologyStack" v-else></SymbologyStackIcon>
 
       <!-- name -->
       <span>{{ element.name }}</span>
 
       <!-- icon -->
-      <div id="icon" v-on:click="clickedButton = true">
-        <md-menu style="z-index: 10;" md-size="auto" :md-offset-x="-180" :md-offset-y="-30">
-          <md-icon class="md-icon-small" md-menu-trigger>more_horiz</md-icon>
-
-          <md-menu-content>
-            <md-menu-item v-on:click="remove" :disabled="!element.userAdded">Remove</md-menu-item>
-          </md-menu-content>
-        </md-menu>
-      </div>
-      <div v-if="element.toggleable" v-on:click="clickedButton = true">
+      <div v-if="element.toggleable">
         <md-button id="icon" class="md-icon-button md-primary md-flat" v-on:click="toggle">
           <md-icon
             class="md-icon-small"
@@ -29,26 +23,36 @@
       </div>
     </div>
     <div class="rvDropdownContent" :class="{ 'hidden' : !element.expanded}">
-      <slot></slot>
+      <div v-for="symbol in element.symbologyStack" :key="symbol.text" style="display: flex; align-items: center; padding: 5px;">
+        <div class="symbologyIcon">
+          <img :src="symbol.image" />
+        </div>
+        {{ symbol.text }}
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import SymbologyStackIcon from "./SymbologyStackIcon";
+
 export default {
-  name: "DropdownComponent",
+  name: "SymbologyStackComponent",
   props: ["element"],
+  components: {
+    SymbologyStackIcon
+  },
   data: function() {
     return {
-      clickedButton: false
+      clickedToggle: false
     };
   },
   methods: {
     click: function() {
-      if (!this.clickedButton) {
+      if (!this.clickedToggle) {
         this.element.expanded = !this.element.expanded;
       }
-      this.clickedButton = false;
+      this.clickedToggle = false;
       if (this.element.expanded) {
         this.$store.getters.getEntries.allCollapsed = false;
         this.$store.dispatch("updateHeaderOption", "expanded");
@@ -58,6 +62,7 @@ export default {
       }
     },
     toggle: function() {
+      this.clickedToggle = true;
       this.element.toggle();
       if (this.element.toggled) {
         this.$store.getters.getEntries.allUntoggled = false;
@@ -66,18 +71,6 @@ export default {
         this.$store.getters.getEntries.allToggled = false;
         this.$store.dispatch("updateHeaderOption", "untoggled");
       }
-    },
-    remove: function() {
-      // first remove children node
-      for (let i = this.element.children.length - 1; i >= 0; i--) {
-        this.element.children.splice(i, 1);
-      }
-
-      // remove this node from the parent
-      let node = this.element.parent.children.findIndex(c => {
-        return c === this.element;
-      });
-      this.element.parent.children.splice(node, 1);
     }
   }
 };
@@ -88,12 +81,7 @@ export default {
   transition: 0.8s;
   font-weight: 500;
 }
-.rv-focused {
-  background: #eee;
-}
-.rotate-180 {
-  transform: rotate(-180deg);
-}
+
 .hidden {
   display: none;
   transition: 0.3s;
@@ -142,5 +130,18 @@ export default {
 }
 .md-icon-small:hover {
   opacity: 1;
+}
+.symbologyIcon {
+  width: 32px;
+  height: 32px;
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+}
+.symbologyIcon img {
+  width: 28px;
 }
 </style>

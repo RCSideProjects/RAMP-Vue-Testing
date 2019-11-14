@@ -1,6 +1,7 @@
 <template>
   <div class="rv-legend">
-    <LegendComponent v-for="node in nodes" v-bind:key="node.name" :element="node"></LegendComponent>
+    <LegendHeader></LegendHeader>
+    <LegendComponent :element="root"></LegendComponent>
 
     <!--
     <DropdownComponent title="Root">
@@ -14,6 +15,7 @@
 </template>
 
 <script>
+import LegendHeader from "./LegendHeader";
 import LegendComponent from "./LegendComponent";
 
 export default {
@@ -23,11 +25,12 @@ export default {
     entries: Array
   },
   components: {
-    LegendComponent
+    LegendComponent,
+    LegendHeader
   },
   data: function() {
     return {
-      nodes: this.$store.state.legendComponents
+      root: this.$store.state.legendComponents
     };
   }
 };

@@ -1,23 +1,26 @@
 <template>
   <div class="rvDropdown">
-    <div class="rvDropdownTitle noselect" v-on:click="click">
-      <!-- icon -->
-      <md-icon id="icon" :class="{ 'rotate-180': element.expanded }">expand_more</md-icon>
-
+    <div class="rvDropdownTitle noselect">
       <!-- name -->
+      <div style="display: flex;" v-if="element.icon">
+        <div class="symbologyIcon">
+          <img :src="element.icon" />
+        </div>
+      </div>
+
       <span>{{ element.name }}</span>
 
       <!-- icon -->
-      <div id="icon" v-on:click="clickedButton = true">
+      <div id="icon">
         <md-menu style="z-index: 10;" md-size="auto" :md-offset-x="-180" :md-offset-y="-30">
           <md-icon class="md-icon-small" md-menu-trigger>more_horiz</md-icon>
 
           <md-menu-content>
-            <md-menu-item v-on:click="remove" :disabled="!element.userAdded">Remove</md-menu-item>
+            <md-menu-item v-on:click="remove" :disabled='!element.userAdded'>Remove</md-menu-item>
           </md-menu-content>
         </md-menu>
       </div>
-      <div v-if="element.toggleable" v-on:click="clickedButton = true">
+      <div v-if="element.toggleable && !element.isSet" v-on:click="clickedButton = true">
         <md-button id="icon" class="md-icon-button md-primary md-flat" v-on:click="toggle">
           <md-icon
             class="md-icon-small"
@@ -27,36 +30,30 @@
           <md-icon class="md-icon-small" v-else>check_box_outline_blank</md-icon>
         </md-button>
       </div>
-    </div>
-    <div class="rvDropdownContent" :class="{ 'hidden' : !element.expanded}">
-      <slot></slot>
+      <div v-else-if="element.toggleable && element.isSet" v-on:click="clickedButton = true">
+        <md-button id="icon" class="md-icon-button md-primary md-flat" v-on:click="toggle">
+          <md-icon
+            class="md-icon-small"
+            v-if="element.toggled"
+            style="width: 20px; height: 20px;"
+          >radio_button_checked</md-icon>
+          <md-icon class="md-icon-small" v-else>radio_button_unchecked</md-icon>
+        </md-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "DropdownComponent",
+  name: "LeafComponent",
   props: ["element"],
   data: function() {
     return {
-      clickedButton: false
+      toggled: false
     };
   },
   methods: {
-    click: function() {
-      if (!this.clickedButton) {
-        this.element.expanded = !this.element.expanded;
-      }
-      this.clickedButton = false;
-      if (this.element.expanded) {
-        this.$store.getters.getEntries.allCollapsed = false;
-        this.$store.dispatch("updateHeaderOption", "expanded");
-      } else {
-        this.$store.getters.getEntries.allExpanded = false;
-        this.$store.dispatch("updateHeaderOption", "collapsed");
-      }
-    },
     toggle: function() {
       this.element.toggle();
       if (this.element.toggled) {
@@ -68,12 +65,6 @@ export default {
       }
     },
     remove: function() {
-      // first remove children node
-      for (let i = this.element.children.length - 1; i >= 0; i--) {
-        this.element.children.splice(i, 1);
-      }
-
-      // remove this node from the parent
       let node = this.element.parent.children.findIndex(c => {
         return c === this.element;
       });
@@ -98,6 +89,9 @@ export default {
   display: none;
   transition: 0.3s;
 }
+.md-icon-button {
+  display: block;
+}
 .rvDropdownTitle {
   font-size: 16px;
   cursor: pointer;
@@ -121,9 +115,6 @@ export default {
 .rvDropdownContent {
   transition: max-height 0.7s ease-in;
 }
-.md-icon-button {
-  display: block;
-}
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
@@ -133,14 +124,29 @@ export default {
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome, Opera and Firefox */
 }
-.md-icon {
-  color: #666666;
-}
 .md-icon-small {
+  color: #666666;
   font-size: 20px !important;
   opacity: 0.62;
 }
 .md-icon-small:hover {
   opacity: 1;
+}
+.md-icon {
+  color: #666666;
+}
+.symbologyIcon {
+  background: white;
+  width: 32px;
+  height: 32px;
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 5px;
+}
+.symbologyIcon img {
+  width: 28px;
 }
 </style>
