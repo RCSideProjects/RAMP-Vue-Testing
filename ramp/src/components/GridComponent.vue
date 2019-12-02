@@ -19,7 +19,8 @@ import '@ag-grid-community/all-modules/dist/styles/ag-grid.css';
 import '@ag-grid-community/all-modules/dist/styles/ag-theme-material.css';
 import { AgGridVue } from '@ag-grid-community/vue';
 import { AllCommunityModules } from '@ag-grid-community/all-modules';
-import { TableBuilder } from '../enhancedTable/index';
+import { TableBuilder } from './index';
+import { setUpTextFilter, TextFloatingFilter } from './custom-floating-filters';
 import CustomHeader from './CustomHeader';
 
 export default {
@@ -28,11 +29,11 @@ export default {
 		return {
 			columnDefs: null,
 			rowData: null,
-			modules: AllCommunityModules
+			modules: AllCommunityModules,
 		};
 	},
 	components: {
-		AgGridVue
+		AgGridVue,
 	},
 	beforeMount() {
 		this.columnDefs = [
@@ -41,7 +42,8 @@ export default {
 				field: 'OBJECTID',
 				sortable: true,
 				filter: 'agNumberColumnFilter',
-				lockPosition: true
+				lockPosition: true,
+				filterParams: {}
 			},
 			{
 				headerName: 'COUNTRY',
@@ -49,7 +51,7 @@ export default {
 				sortable: true,
 				filter: 'agTextColumnFilter',
 				lockPosition: true,
-				width: 500
+				filterParams: {},
 			},
 			{
 				headerName: 'NAME',
@@ -57,7 +59,7 @@ export default {
 				sortable: true,
 				filter: 'agTextColumnFilter',
 				lockPosition: true,
-				width: 500
+				filterParams: {},
 			},
 			{
 				headerName: 'DATE',
@@ -65,17 +67,17 @@ export default {
 				sortable: true,
 				filter: 'agDateColumnFilter',
 				lockPosition: true,
-				width: 300
-			}
+				filterParams: {},
+			},
 		];
+
+		this.columnDefs.forEach(col => setUpTextFilter(col, true));
+		this.columnDefs.forEach(col => console.log(col.filterParams));
 
 		this.rowData = [
 			{ OBJECTID: 1, COUNTRY: 'Mexico', NAME: 'Cornwall Pipeline', DATE: '01/01/2020' },
 			{ OBJECTID: 2, COUNTRY: 'Canada', NAME: 'Mainline', DATE: '12/25/2019' },
 			{ OBJECTID: 3, COUNTRY: 'United States', NAME: 'Bluewater Pipeline Co', DATE: '11/29/2019' },
-			{ OBJECTID: 4, COUNTRY: 'United States', NAME: 'Bluewater Pipeline Co', DATE: '11/29/2019' },
-			{ OBJECTID: 5, COUNTRY: 'Canada', NAME: 'Bluewater Pipeline Co', DATE: '11/29/2019' },
-			{ OBJECTID: 6, COUNTRY: 'United States', NAME: 'Bluewater Pipeline Co', DATE: '11/29/2019' }
 		];
 
 		this.frameworkComponents = { agColumnHeader: CustomHeader };
@@ -84,13 +86,14 @@ export default {
 		onGridReady(params) {
 			this.gridApi = params.api;
 			this.columnApi = params.columnApi;
-		}
+		},
 	},
 	created() {
 		this.gridOptions = {
-			enableFilter: true
+			enableFilter: true,
+			floatingFilter: true,
 		};
-	}
+	},
 };
 </script>
 
