@@ -1,11 +1,11 @@
 <template>
-  <div class="rvDropdown">
-    <div class="rvDropdownTitle noselect" v-on:click="click">
+  <div class="rvDropdown" v-on:click="openTable">
+    <div class="rvDropdownTitle noselect">
       <!-- icon -->
       <md-button id="icon" class="md-icon-button md-primary md-flat" v-if="element.expanded">
         <md-icon class="md-icon-small" style="width: 20px; height: 20px;">clear</md-icon>
       </md-button>
-      <SymbologyStackIcon :stack="element.symbologyStack" v-else></SymbologyStackIcon>
+      <SymbologyStackIcon  v-on:click="click" :stack="element.symbologyStack" v-else></SymbologyStackIcon>
 
       <!-- name -->
       <span>{{ element.name }}</span>
@@ -30,17 +30,20 @@
         {{ symbol.text }}
       </div>
     </div>
+    <GridComponent v-if="element.tableOpen"></GridComponent>
   </div>
 </template>
 
 <script>
 import SymbologyStackIcon from "./SymbologyStackIcon";
+import GridComponent from "./GridComponent";
 
 export default {
   name: "SymbologyStackComponent",
   props: ["element"],
   components: {
-    SymbologyStackIcon
+    SymbologyStackIcon,
+    GridComponent
   },
   data: function() {
     return {
@@ -71,9 +74,19 @@ export default {
         this.$store.getters.getEntries.allToggled = false;
         this.$store.dispatch("updateHeaderOption", "untoggled");
       }
+    },
+    openTable: function() {
+      let currentTable = this.$store.getters.getOpenTable;
+
+      if(currentTable != null && currentTable !== this.element) {
+        currentTable.tableOpen = false;
+      }
+
+      this.element.tableOpen = !this.element.tableOpen;
+      this.$store.commit('SET_OPEN_TABLE', this.element);
     }
   }
-};
+}
 </script>
 
 <style scoped>

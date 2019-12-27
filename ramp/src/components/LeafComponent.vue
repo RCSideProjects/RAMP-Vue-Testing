@@ -8,7 +8,7 @@
         </div>
       </div>
 
-      <span>{{ element.name }}</span>
+      <span v-on:click="openTable">{{ element.name }}</span>
 
       <!-- icon -->
       <div id="icon">
@@ -16,7 +16,8 @@
           <md-icon class="md-icon-small" md-menu-trigger>more_horiz</md-icon>
 
           <md-menu-content>
-            <md-menu-item v-on:click="remove" :disabled='!element.userAdded'>Remove</md-menu-item>
+            <md-menu-item v-on:click="openTable"><img src="../assets/datatable.png">Datatable</md-menu-item>
+            <md-menu-item v-on:click="remove" :disabled='!element.userAdded'><img src="../assets/remove.png">Remove</md-menu-item>
           </md-menu-content>
         </md-menu>
       </div>
@@ -41,13 +42,19 @@
         </md-button>
       </div>
     </div>
+    <GridComponent :element="element" v-if="element.tableOpen"></GridComponent>
   </div>
 </template>
 
 <script>
+import GridComponent from "./GridComponent";
+
 export default {
   name: "LeafComponent",
   props: ["element"],
+  components: {
+    GridComponent
+  },
   data: function() {
     return {
       toggled: false
@@ -64,10 +71,18 @@ export default {
         this.$store.dispatch("updateHeaderOption", "untoggled");
       }
     },
+    openTable: function() {
+      let currentTable = this.$store.getters.getOpenTable;
+
+      if(currentTable != null && currentTable !== this.element) {
+        currentTable.tableOpen = false;
+      }
+
+      this.element.tableOpen = !this.element.tableOpen;
+      this.$store.commit('SET_OPEN_TABLE', this.element);
+    },
     remove: function() {
-      let node = this.element.parent.children.findIndex(c => {
-        return c === this.element;
-      });
+      let node = this.element.parent.children.findIndex(c => c === this.element);
       this.element.parent.children.splice(node, 1);
     }
   }
